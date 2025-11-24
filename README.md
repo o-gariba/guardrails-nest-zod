@@ -1,9 +1,8 @@
-
 # SafeTutor API
 
 ## O que é o SafeTutor API?
 
-O SafeTutor API é um projeto de back-end construído com NestJS que serve como uma camada de segurança e controle para interações com grandes modelos de linguagem (LLMs), como o GPT-4 da OpenAI. O objetivo principal é fornecer uma API segura para aplicações educacionais voltadas para o público infanto-juvenil, garantindo que as respostas da IA sejam sempre apropriadas e validadas.
+O SafeTutor API é um projeto de back-end construído com NestJS que serve como uma camada de segurança e controle para interações com grandes modelos de linguagem (LLMs), como o GPT-4 da OpenAI e o Gemini do Google. O objetivo principal é fornecer uma API segura para aplicações educacionais voltadas para o público infanto-juvenil, garantindo que as respostas da IA sejam sempre apropriadas e validadas.
 
 O projeto utiliza uma arquitetura de "Defesa em Profundidade", onde cada interação com a IA passa por múltiplas camadas de validação, garantindo segurança, determinismo e privacidade.
 
@@ -15,6 +14,8 @@ O projeto é totalmente containerizado com Docker, o que simplifica a configura�
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- [Node.js](https://nodejs.org/en/) (para executar os testes)
+- [NPM](https://www.npmjs.com/get-npm) (geralmente instalado com o Node.js)
 
 ### Passos para execução
 
@@ -24,26 +25,39 @@ O projeto é totalmente containerizado com Docker, o que simplifica a configura�
     cd <NOME_DO_DIRETORIO>
     ```
 
-2.  **Configure as variáveis de ambiente:**
+2.  **Instale as dependências para testes:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure as variáveis de ambiente:**
     - Renomeie o arquivo `.env.example` para `.env`.
     - Abra o arquivo `.env` e insira sua chave da API da OpenAI na variável `OPENAI_API_KEY`.
     ```env
     OPENAI_API_KEY=SUA_CHAVE_DA_API_AQUI
-    AI_PROVIDER=openai # ou 'mock' para usar o provedor de mock
+    AI_PROVIDER=openai # ou 'gemini', ou 'mock' para usar o provedor de mock
     ```
 
-3.  **Execute a aplicação com Docker Compose:**
+4.  **Execute a aplicação com Docker Compose:**
     ```bash
     docker-compose up --build -d
     ```
-    Este comando irá construir a imagem Docker da aplicação e iniciar o container em modo detached (em segundo plano).
+    Este comando irá construir a imagem Docker da aplicação e iniciar o container em modo detached (em segundo plano). A API estará disponível em `http://localhost:3000`.
 
-4.  **Verifique se a aplicação está rodando:**
-    - A API estará disponível em `http://localhost:3000`.
-    - Você pode testar o endpoint de piadas com o seguinte comando:
-    ```bash
-    curl http://localhost:3000/joke
-    ```
+## Como testar a aplicação
+
+Os testes são fundamentais para garantir que nossos "guardrails" de segurança funcionem como esperado. O projeto utiliza o framework Jest para testes unitários e de integração.
+
+Para executar os testes, rode o seguinte comando no seu terminal:
+
+```bash
+npm test
+```
+
+Este comando executará todos os arquivos de teste localizados no diretório `test/`. Os testes simulam diferentes cenários, incluindo:
+- Respostas bem-sucedidas da IA.
+- Respostas maliciosas ou mal formatadas para garantir que sejam bloqueadas.
+- Falhas de validação de dados.
 
 ## A importância dos Guardrails para jovens estudantes
 
@@ -76,15 +90,19 @@ O SafeTutor API implementa uma série of guardrails técnicos para garantir a se
     ```
 
 2.  **Abstração do Provedor de IA:**
-    - O código é projetado para não depender de um único provedor de IA. A classe `AiProvider` define um contrato que qualquer provedor (OpenAI, Google Gemini, Anthropic Claude, etc.) deve seguir.
+    - O código é projetado para não depender de um único provedor de IA. A interface `AiProvider` define um contrato que qualquer provedor (OpenAI, Google Gemini, Anthropic Claude, etc.) deve seguir.
     - Isso permite trocar o modelo de IA subjacente sem alterar a lógica de negócio principal. Mais importante, permite criar provedores de "mock" ou de "teste" que simulam respostas maliciosas, permitindo testar rigorosamente a eficácia dos nossos guardrails.
-    - No arquivo `safer-rag.module.ts`, podemos facilmente alternar entre o provedor real da OpenAI e um provedor de mock para desenvolvimento e testes, usando uma variável de ambiente:
+    - No arquivo `safer-rag.module.ts`, podemos facilmente alternar entre os provedores (OpenAI, Gemini, Mock) para desenvolvimento e testes, usando uma variável de ambiente:
     ```typescript
     // trecho de src/modules/safer-rag/safer-rag.module.ts
     {
       provide: AiProvider,
       useClass:
-        process.env.AI_PROVIDER === 'mock' ? MockProvider : OpenAIProvider,
+        process.env.AI_PROVIDER === 'gemini'
+          ? GeminiProvider
+          : process.env.AI_PROVIDER === 'mock'
+          ? MockProvider
+          : OpenAIProvider,
     }
     ```
 
