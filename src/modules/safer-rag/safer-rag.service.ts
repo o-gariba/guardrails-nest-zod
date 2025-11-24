@@ -17,7 +17,6 @@ export class SafeRAGService {
         try {
             parsedContent = JSON.parse(content);
         } catch (error) {
-            // In a real app, log the parsing error
             console.error('Falha ao analisar a resposta do LLM:', error);
             throw new Error('Resposta JSON inválida do LLM.');
         }
@@ -25,8 +24,6 @@ export class SafeRAGService {
         const validationResult = schema.safeParse(parsedContent);
 
         if (!validationResult.success) {
-            // In a real app, log the validation error for debugging
-            console.log('Conteúdo recebido:', JSON.stringify(parsedContent, null, 2));
             console.error('A validação do Zod falhou:', validationResult.error);
             throw new Error('A saída do LLM falhou na validação.');
         }

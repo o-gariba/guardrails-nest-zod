@@ -19,12 +19,36 @@ export class AppController {
   @Get('joke')
   async getJoke() {
     const JokeSchema = z.object({
-      joke: z.string(),
+      piada: z.string(),
       punchline: z.string(),
     });
     return this.safeRagService.getSafeResponse(
-      'Tell me a joke. Output JSON with fields: joke (string), punchline (string).',
+      'Conte uma piada. Output deve ser um JSON com os campos: piada (string), punchline (string).',
       JokeSchema,
     );
+  }
+
+  @Get('quiz')
+  async obterQuiz() {
+    const SchemaQuiz = z.object({
+      topico: z.string(),
+      figura_historica: z.string(),
+      pergunta: z.string(),
+      opcoes: z.array(z.string()),
+      resposta_correta: z.string(),
+    });
+
+    const prompt = `
+      Gere uma pergunta de múltipla escolha sobre uma figura histórica famosa.
+      A pergunta deve ser adequada para um estudante do ensino fundamental.
+      A saída deve ser um JSON com os seguintes campos:
+      - topico (string): O assunto geral (ex: "História", "Ciência").
+      - figura_historica (string): O nome da figura histórica.
+      - pergunta (string): A pergunta do quiz.
+      - opcoes (array de 4 strings): As possíveis respostas.
+      - resposta_correta (string): A resposta correta dentre as opções.
+    `;
+
+    return this.safeRagService.getSafeResponse(prompt, SchemaQuiz);
   }
 }

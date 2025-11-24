@@ -1,0 +1,17 @@
+meta {
+  name: Get a quiz
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/quiz
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.joke: isDefined
+  res.body.punchline: isDefined
+}
