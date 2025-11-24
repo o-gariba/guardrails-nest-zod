@@ -5,7 +5,7 @@ import { AiProvider } from './ai-provider.interface';
 
 @Injectable()
 export class SafeRAGService {
-  constructor(private readonly aiProvider: AiProvider) {}
+  constructor(private readonly aiProvider: AiProvider) { }
 
   async getSafeResponse<T extends z.ZodType<any, any, any>>(
     prompt: string,
@@ -26,6 +26,7 @@ export class SafeRAGService {
 
     if (!validationResult.success) {
       // In a real app, log the validation error for debugging
+      console.log('Conteúdo recebido:', JSON.stringify(parsedContent, null, 2));
       console.error('A validação do Zod falhou:', validationResult.error);
       throw new Error('A saída do LLM falhou na validação.');
     }

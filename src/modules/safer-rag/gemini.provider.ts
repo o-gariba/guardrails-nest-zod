@@ -9,7 +9,7 @@ export class GeminiProvider implements AiProvider {
 
     async generateJson(prompt: string): Promise<string> {
         const model = this.genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-2.5-flash-lite',
             generationConfig: {
                 responseMimeType: 'application/json',
             },

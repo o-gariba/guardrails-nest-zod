@@ -9,7 +9,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly safeRagService: SafeRAGService,
-  ) {}
+  ) { }
 
   @Get()
   getHello(): string {
@@ -22,6 +22,9 @@ export class AppController {
       joke: z.string(),
       punchline: z.string(),
     });
-    return this.safeRagService.getSafeResponse('Tell me a joke', JokeSchema);
+    return this.safeRagService.getSafeResponse(
+      'Tell me a joke. Output JSON with fields: joke (string), punchline (string).',
+      JokeSchema,
+    );
   }
 }
